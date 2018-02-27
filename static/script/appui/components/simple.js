@@ -1,0 +1,147 @@
+/**
+* @preserve Copyright (c) 2013 British Broadcasting Corporation
+* (http://www.bbc.co.uk) and TAL Contributors (1)
+*
+* (1) TAL Contributors are listed in the AUTHORS file and at
+*     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
+*     not this notice.
+*
+* @license Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+* All rights reserved
+* Please contact us for an alternative licence
+*/
+
+define(
+  "sampleapp/appui/components/simple",
+  [
+    "antie/widgets/component",
+    "antie/runtimecontext",
+    'antie/devices/device',
+    "antie/widgets/button",
+    "antie/widgets/label",
+    "antie/widgets/verticallist",
+    "antie/widgets/carousel",
+    "antie/datasource",
+    "sampleapp/appui/formatters/simpleformatter",
+    "sampleapp/appui/datasources/simplefeed",
+    "sampleapp/appui/jquery/jquery-3.3.1"
+  ],
+  function (Component,RuntimeContext,Device, Button, Label, VerticalList, Carousel, DataSource, SimpleFormatter, SimpleFeed) {
+
+    // All components extend Component
+    return Component.extend({
+      init: function init () {
+        var self, helloWorldLabel, welcomeLabel, carouselButtonLabel, verticalListMenu;
+        var device = RuntimeContext.getDevice();
+        device.executeCrossDomainGet('http://localhost:3000/result', {
+            onSuccess: function(responseObject) {
+               // console.log(responseObject)
+            },
+            onError: function(response) {
+               // console.log(response)
+            }
+    });
+
+        self = this;
+
+        // It is important to call the constructor of the superclass
+        init.base.call(this, "simplecomponent");
+
+        // Add the labels to the component
+        helloWorldLabel = new Label("helloWorldLabel", "Hello World");
+        this.appendChildWidget(helloWorldLabel);
+
+        welcomeLabel = new Label("welcomeLabel",['simple-class'], "Welcome to your first TAL application!");
+        this.appendChildWidget(welcomeLabel);
+
+        var newCarouselButton = this._createCarouselButton();
+
+        var playerButton = new Button();
+        playerButton.addEventListener("select", function(evt){
+          self.getCurrentApplication().pushComponent("maincontainer", "sampleapp/appui/components/simplevideocomponent");
+        });
+        playerButton.appendChildWidget(new Label("Simple Video Player Example"));
+
+        var horizontalProgressButton = new Button();
+        horizontalProgressButton.appendChildWidget(new Label("Horizontal Progress Bar Example"));
+        horizontalProgressButton.addEventListener("select", function(evt) {
+          self.getCurrentApplication().pushComponent("maincontainer", "sampleapp/appui/components/horizontalprogresscomponent");
+        });
+        var alertButton = new Button();
+        alertButton.appendChildWidget(new Label("Alert box examples"));
+        alertButton.addEventListener("select", function(evt) {
+          self.getCurrentApplication().pushComponent("maincontainer", "sampleapp/appui/components/alertcomponent");
+        });
+        var loginButton = new Button();
+        loginButton.appendChildWidget(new Label("Log in"));
+        loginButton.addEventListener("select", function(evt) {
+          self.getCurrentApplication().pushComponent("maincontainer", "sampleapp/appui/components/logincomponent");
+        });
+
+        // Create a vertical list and append the buttons to navigate within the list
+        verticalListMenu = new VerticalList("mainMenuList");
+        verticalListMenu.appendChildWidget(newCarouselButton);
+        verticalListMenu.appendChildWidget(playerButton);
+        verticalListMenu.appendChildWidget(horizontalProgressButton);
+        verticalListMenu.appendChildWidget(alertButton);
+        verticalListMenu.appendChildWidget(loginButton);
+        this.appendChildWidget(verticalListMenu);
+
+        // calls Application.ready() the first time the component is shown
+        // the callback removes itself once it's fired to avoid multiple calls.
+        this.addEventListener("aftershow", function appReady(evt) {
+          self.getCurrentApplication().ready();
+          self.removeEventListener('aftershow', appReady);
+        });
+      },
+
+      _createCarouselButton: function () {
+        var self = this;
+        function carouselExampleSelected() {
+          self.getCurrentApplication().pushComponent(
+            "maincontainer",
+            "sampleapp/appui/components/carouselcomponent",
+            self._getCarouselConfig()
+          );
+        }
+
+        var button = new Button('carouselButton');
+        button.appendChildWidget(new Label("Carousel Example"));
+        button.addEventListener('select', carouselExampleSelected);
+        return button;
+      },
+     
+
+      _getCarouselConfig: function () {
+        return {
+          description: "Carousel example, LEFT and RIGHT to navigate, SELECT to go back",
+          dataSource:  new DataSource(null, new SimpleFeed(), 'loadData'),
+          formatter: new SimpleFormatter(),
+          orientation: Carousel.orientations.HORIZONTAL,
+          carouselId: 'verticalCullingCarousel',
+          animOptions: {
+            skipAnim: false
+          },
+          alignment: {
+            normalisedAlignPoint: 0.5,
+            normalisedWidgetAlignPoint: 0.5
+          },
+          initialItem: 4,
+          type: "CULLING",
+          lengths: 264
+        };
+      }
+    });
+  }
+);
