@@ -8,37 +8,64 @@ define(
         "antie/widgets/image",
         "antie/widgets/button",
         "antie/widgets/verticallist",
+        "sampleapp/appui/widgets/input",
+        "sampleapp/appui/widgets/videocard"
+
     ],
-    function (Component, Label, Image,Button,VerticalList) {
-  
+    function (Component, Label, Image, Button, VerticalList, Input, VideoCard) {
+        function evtBind(self, functionName) {
+            return function (evt) {
+                self[functionName].call(self, evt);
+            };
+        }
         return Component.extend({
             init: function init() {
                 init.base.call(this, "logincomponent");
                 var self = this;
-                var logoImage=new Image("logoImage","static/img/logo-desktop.png");
+                var logoImage = new Image("logoImage", "static/img/logo-desktop.png");
                 logoImage.addClass("logo");
-                var welcomeLableStart=new Label("welcomeLabelStart","WELCOME BACK");
+
+                var welcomeLableStart = new Label("welcomeLabelStart", "WELCOME BACK");
                 welcomeLableStart.addClass("welcome-label");
-                var welcomeLableEnd=new Label("welcomeLabelEnd","SIGN IN BELOW");
+                var welcomeLableEnd = new Label("welcomeLabelEnd", "SIGN IN BELOW");
                 welcomeLableEnd.addClass("welcome-label");
                 var submitButton = new Button();
                 submitButton.addClass("bc-FF015B");
                 submitButton.appendChildWidget(new Label("SIGN IN"));
-
+                var txtEmail = new Input("txtEmail");
+                var txtPassword = new Input("txtPassword");
                 var loginForm = new Button();
-               loginForm.addClass("height-50-percentage");
-               var emailLabel=new Label("email","EMAIL*");
-               emailLabel.addClass("login-form");
-               var passwordLabel=new Label("password","PASSWORD*");
-               passwordLabel.addClass("login-form");
-               loginForm.appendChildWidget(emailLabel);
-               loginForm.appendChildWidget(passwordLabel);
-               loginForm.appendChildWidget(submitButton);
-               self.appendChildWidget(logoImage);
+                loginForm.addClass("height-50-percentage");
+                var emailLabel = new Label("email", "EMAIL*");
+                emailLabel.addClass("login-form");
+                var passwordLabel = new Label("password", "PASSWORD*");
+                passwordLabel.addClass("login-form");
+                var dataObject={
+                    data:[{
+                        id:"id1",
+                        time:"15.01",
+                        title:"Premier League World - Show 35"
+                    }]
+                };
+               
+                 var videoCardz = new VideoCard("xyz",true,dataObject.data[0]);
+               // videoCardz.setActiveChildKey('C')
+                self.appendChildWidget(emailLabel);
+                self.appendChildWidget(txtEmail);
+                self.appendChildWidget(passwordLabel);
+                self.appendChildWidget(txtPassword);
+                self.appendChildWidget(submitButton);
+                self.appendChildWidget(logoImage);
                 self.appendChildWidget(welcomeLableStart);
                 self.appendChildWidget(welcomeLableEnd);
-               // self.appendChildWidget(submitButton);
-                self.appendChildWidget(loginForm);
+                 self.appendChildWidget(videoCardz);
+                // self.appendChildWidget(submitButton);
+                // self.appendChildWidget(loginForm);
+                submitButton.addEventListener("select", function (evt) {
+                    self._onAfterShow(evt);
+                });
+                // loginForm.setActiveChildIndex(4);
+                // loginForm.getChildWidgets()[4].focus();
             },
             _addComponentListeners: function () {
                 var componentEventListenerMap;
@@ -59,7 +86,9 @@ define(
                 // This is the best place to set data-specific content.
             },
             _onSelect: function (ev) {
-                this.parentWidget.back();
+                loginButton.addEventListener("select", function (evt) {
+                    self.getCurrentApplication().pushComponent("maincontainer", "sampleapp/appui/components/alertcomponent");
+                });
             },
             _addListenersTo: function (target, listenerMap) {
                 this._modifyListenersOn(target, listenerMap, true);

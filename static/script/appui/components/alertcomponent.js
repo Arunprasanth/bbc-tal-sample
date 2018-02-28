@@ -52,11 +52,11 @@ define(
                // var x=this._createKeboard();
                
                var myVirtualKeyBoard = new Keyboard("keyboards", 23,2, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", false, true);
-               myVirtualKeyBoard.setActiveChildKey('C')
-                verticalListMenu = new VerticalList("subMenuList");
-                verticalListMenu.appendChildWidget(button);
-                verticalListMenu.appendChildWidget(myVirtualKeyBoard);
-                this.appendChildWidget(verticalListMenu);
+                myVirtualKeyBoard.setActiveChildKey('C')
+              //  verticalListMenu = new VerticalList("subMenuList");
+               // verticalListMenu.appendChildWidget(button);
+                //verticalListMenu.appendChildWidget(myVirtualKeyBoard);
+                this.appendChildWidget(myVirtualKeyBoard);
 
             },
             _addComponentListeners: function () {
